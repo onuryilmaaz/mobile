@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
+import 'package:mobile/features/home/screens/home_screen.dart';
 import 'package:mobile/features/user/screens/profile_screen.dart';
 import 'package:mobile/features/user/screens/user_list_screen.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +13,7 @@ class MainDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
+    final user = authProvider.userDetail;
     //final user = authProvider.userDetail;
     return Drawer(
       child: Column(
@@ -20,23 +22,60 @@ class MainDrawer extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.black, Colors.black],
+                colors: [const Color.fromARGB(255, 5, 111, 101), Colors.teal],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
             ),
             child: Row(
               children: [
-                const Icon(Icons.poll, size: 48, color: Colors.white),
-                const SizedBox(width: 18),
-                Text(
-                  "Poll Apps",
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge!.copyWith(color: Colors.white),
+                Row(
+                  children: [
+                    const Icon(Icons.poll, size: 48, color: Colors.white),
+                    const SizedBox(width: 18),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '${user != null ? user.fullName : "Poll Apps"}',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleLarge!.copyWith(color: Colors.white),
+                        ),
+                        Text(
+                          '${user?.roles.join(', ') ?? ""}',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.logout),
+                          tooltip: 'Çıkış Yap',
+                          onPressed: () {
+                            context.read<AuthProvider>().logout();
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.home, size: 26, color: Colors.black),
+            title: Text(
+              "Ana Sayfa",
+              style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                color: Colors.black,
+                fontSize: 24,
+              ),
+            ),
+            onTap: () {
+              Navigator.of(context).pop();
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HomeScreen()),
+              );
+            },
           ),
           if (authProvider.isAdmin)
             ListTile(
@@ -167,20 +206,20 @@ class MainDrawer extends StatelessWidget {
               },
             ),
 
-          Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: IconButton(
-                  icon: const Icon(Icons.logout),
-                  tooltip: 'Çıkış Yap',
-                  onPressed: () {
-                    context.read<AuthProvider>().logout();
-                  },
-                ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                top: 230,
+              ), // biraz yukarı kaldırmak istersen
+              child: IconButton(
+                icon: const Icon(Icons.logout),
+                tooltip: 'Çıkış Yap',
+                onPressed: () {
+                  context.read<AuthProvider>().logout();
+                },
               ),
-            ],
+            ),
           ),
         ],
       ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
 import 'package:mobile/features/user/providers/user_provider.dart';
-import 'package:mobile/features/auth/screens/login_screen.dart';
+// import 'package:mobile/features/auth/screens/login_screen.dart';
 import 'package:mobile/features/home/screens/home_screen.dart';
 import 'package:mobile/shared/widgets/loading_indicator.dart';
 
@@ -44,10 +44,12 @@ class AuthWrapper extends StatelessWidget {
       return const Scaffold(body: LoadingIndicator());
     }
 
-    if (authProvider.isAuthenticated) {
-      return const HomeScreen();
-    } else {
-      return const LoginScreen();
-    }
+    return HomeScreen();
+
+    // if (authProvider.isAuthenticated) {
+    //   return const HomeScreen();
+    // } else {
+    //   return const LoginScreen();
+    // }
   }
 }

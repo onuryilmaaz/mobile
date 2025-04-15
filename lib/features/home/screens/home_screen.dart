@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/features/auth/screens/login_screen.dart';
+import 'package:mobile/features/auth/screens/register_screen.dart';
 import 'package:mobile/features/home/widgets/drawer.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
@@ -14,15 +16,62 @@ class HomeScreen extends StatelessWidget {
     void _setScreen(String identifier) async {}
 
     return Scaffold(
+      backgroundColor: Colors.teal,
       appBar: AppBar(
-        title: const Text('Ana Sayfa'),
+        backgroundColor: Colors.white,
+        title: const Text('POLLING-APP'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Çıkış Yap',
-            onPressed: () {
-              context.read<AuthProvider>().logout();
-            },
+          PopupMenuButton(
+            icon: Icon(Icons.more_vert),
+            itemBuilder:
+                (BuildContext context) => [
+                  PopupMenuItem(
+                    child: ListTile(
+                      leading: Icon(Icons.login),
+                      title: Text('Login'),
+                      onTap: () {
+                        Navigator.pop(context); // Menü kapansın
+                        Future.delayed(Duration.zero, () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LoginScreen(),
+                            ),
+                          );
+                        });
+                      },
+                    ),
+                  ),
+                  PopupMenuItem(
+                    child: ListTile(
+                      leading: Icon(Icons.add),
+                      title: Text('Register'),
+                      onTap: () {
+                        Navigator.pop(context); // Menü kapansın
+                        Future.delayed(Duration.zero, () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const RegisterScreen(),
+                            ),
+                          );
+                        });
+                      },
+                    ),
+                  ),
+                  PopupMenuItem(
+                    child: ListTile(
+                      leading: Icon(Icons.logout),
+                      title: Text('Çıkış Yap'),
+                      onTap: () {
+                        Navigator.pop(context); // Menüyü kapat
+                        context
+                            .read<AuthProvider>()
+                            .logout(); // Logout fonksiyonunu çağır
+                      },
+                    ),
+                  ),
+                ],
           ),
         ],
       ),
@@ -32,19 +81,58 @@ class HomeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (user != null) ...[
-              Text('Hoşgeldin, ${user.fullName ?? user.email}'),
+              Text(
+                'Hoşgeldin, ${user.fullName ?? user.email}',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               Text('Roller: ${user.roles.join(', ')}'),
               const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ElevatedButton(
+                  onPressed: () {},
+                  child: const Text('Ankete katıl'),
+                ),
+              ),
             ] else if (authProvider.isLoading) ...[
               const CircularProgressIndicator(),
               const Text('Kullanıcı bilgileri yükleniyor...'),
             ] else ...[
-              const Text('Kullanıcı bilgileri alınamadı.'),
-              ElevatedButton(
-                onPressed: () {
-                  context.read<AuthProvider>().fetchUserDetails();
-                },
-                child: const Text('Tekrar Dene'),
+              const Text(
+                'Hızlı, kolay ve güvenilir anketler oluşturun ve katılın.',
+              ),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      child: const Text('Ankete katıl'),
+                    ),
+                  ),
+                  if (user == null)
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LoginScreen(),
+                            ),
+                          );
+                          context.read<AuthProvider>().fetchUserDetails();
+                        },
+                        child: const Text('Giriş Yap'),
+                      ),
+                    ),
+                ],
               ),
             ],
           ],
