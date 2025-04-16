@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/features/auth/screens/login_screen.dart';
 import 'package:mobile/features/auth/screens/register_screen.dart';
 import 'package:mobile/features/home/widgets/drawer.dart';
+import 'package:mobile/features/poll/screens/poll_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
 
@@ -94,7 +95,12 @@ class HomeScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => PollScreen()),
+                    );
+                  },
                   child: const Text('Ankete katıl'),
                 ),
               ),
@@ -104,6 +110,11 @@ class HomeScreen extends StatelessWidget {
             ] else ...[
               const Text(
                 'Hızlı, kolay ve güvenilir anketler oluşturun ve katılın.',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
 
               Row(
@@ -112,7 +123,12 @@ class HomeScreen extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => PollScreen()),
+                        );
+                      },
                       child: const Text('Ankete katıl'),
                     ),
                   ),

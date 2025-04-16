@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
 import 'package:mobile/features/home/screens/home_screen.dart';
+import 'package:mobile/features/poll/screens/poll_screen.dart';
 import 'package:mobile/features/user/screens/profile_screen.dart';
 import 'package:mobile/features/user/screens/user_list_screen.dart';
 import 'package:provider/provider.dart';
@@ -31,27 +32,29 @@ class MainDrawer extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.poll, size: 48, color: Colors.white),
-                    const SizedBox(width: 18),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.poll, size: 48, color: Colors.white),
+                        const SizedBox(width: 18),
+                      ],
+                    ),
+
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           '${user != null ? user.fullName : "Poll Apps"}',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.titleLarge!.copyWith(color: Colors.white),
+                          textAlign: TextAlign.justify,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         Text(
                           '${user?.roles.join(', ') ?? ""}',
                           style: TextStyle(color: Colors.white, fontSize: 16),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.logout),
-                          tooltip: 'Çıkış Yap',
-                          onPressed: () {
-                            context.read<AuthProvider>().logout();
-                          },
                         ),
                       ],
                     ),
@@ -74,6 +77,23 @@ class MainDrawer extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => HomeScreen()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.poll, size: 26, color: Colors.black),
+            title: Text(
+              "Anketler",
+              style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                color: Colors.black,
+                fontSize: 24,
+              ),
+            ),
+            onTap: () {
+              Navigator.of(context).pop();
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PollScreen()),
               );
             },
           ),
@@ -205,22 +225,40 @@ class MainDrawer extends StatelessWidget {
                 );
               },
             ),
-
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(
-                top: 230,
-              ), // biraz yukarı kaldırmak istersen
-              child: IconButton(
-                icon: const Icon(Icons.logout),
-                tooltip: 'Çıkış Yap',
-                onPressed: () {
-                  context.read<AuthProvider>().logout();
-                },
+          if (authProvider.isAuthenticated)
+            ListTile(
+              leading: const Icon(
+                Icons.logout_outlined,
+                size: 26,
+                color: Colors.black,
               ),
+              title: Text(
+                "Çıkış Yap",
+                style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                  color: Colors.black,
+                  fontSize: 24,
+                ),
+              ),
+              onTap: () {
+                context.read<AuthProvider>().logout();
+              },
             ),
-          ),
+
+          // Align(
+          //   alignment: Alignment.bottomCenter,
+          //   child: Padding(
+          //     padding: const EdgeInsets.only(
+          //       top: 230,
+          //     ), // biraz yukarı kaldırmak istersen
+          //     child: IconButton(
+          //       icon: const Icon(Icons.logout),
+          //       tooltip: 'Çıkış Yap',
+          //       onPressed: () {
+          //         context.read<AuthProvider>().logout();
+          //       },
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );
