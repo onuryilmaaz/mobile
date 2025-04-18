@@ -9,13 +9,13 @@ class PollCreateDto {
   final int? categoryId;
   final List<QuestionCreateDto> questions;
 
-  PollCreateDto({
+  const PollCreateDto({
     required this.title,
-    this.description,
+    required this.description,
     required this.createdDate,
-    this.expiryDate,
+    required this.expiryDate,
     required this.isActive,
-    this.categoryId,
+    required this.categoryId,
     required this.questions,
   });
 

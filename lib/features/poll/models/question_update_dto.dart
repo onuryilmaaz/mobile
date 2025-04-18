@@ -1,8 +1,8 @@
+import 'package:mobile/features/poll/models/option_create_dto.dart';
 import 'package:mobile/features/poll/models/question_detail_dto.dart';
 
-import 'option_create_dto.dart';
-
-class QuestionCreateDto {
+class QuestionUpdateDto {
+  final int id;
   final String text;
   final QuestionType type;
   final int orderIndex;
@@ -10,17 +10,19 @@ class QuestionCreateDto {
   final int? maxSelections;
   final List<OptionCreateDto>? options;
 
-  const QuestionCreateDto({
+  const QuestionUpdateDto({
+    required this.id,
     required this.text,
     required this.type,
     required this.orderIndex,
     required this.isRequired,
-    this.maxSelections,
-    this.options,
+    required this.maxSelections,
+    required this.options,
   });
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'text': text,
       'type': type.toString().split('.').last,
       'orderIndex': orderIndex,

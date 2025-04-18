@@ -189,6 +189,7 @@ class PollService {
     int pollId,
     PollResponseDto responseDto,
   ) async {
+    print(json.encode(responseDto.toJson()));
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/Poll/submit/$pollId'),

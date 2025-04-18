@@ -25,13 +25,9 @@ class UserService {
       if (response.statusCode == 200) {
         return UserDetail.fromJson(jsonDecode(response.body));
       } else {
-        print(
-          'Failed to get user detail: ${response.statusCode} ${response.body}',
-        );
         return null;
       }
     } catch (e) {
-      print('Error getting user detail: $e');
       return null;
     }
   }
@@ -46,11 +42,9 @@ class UserService {
         List<dynamic> body = jsonDecode(response.body);
         return body.map((dynamic item) => UserDetail.fromJson(item)).toList();
       } else {
-        print('Failed to get users: ${response.statusCode} ${response.body}');
         return []; // Hata durumunda boş liste dön
       }
     } catch (e) {
-      print('Error getting users: $e');
       return [];
     }
   }
@@ -75,16 +69,11 @@ class UserService {
       );
 
       if (response.statusCode == 200) {
-        print('User status updated successfully.');
         return true;
       } else {
-        print(
-          'Failed to update user status: ${response.statusCode} ${response.body}',
-        );
         return false;
       }
     } catch (e) {
-      print('Error updating user status: $e');
       return false;
     }
   }

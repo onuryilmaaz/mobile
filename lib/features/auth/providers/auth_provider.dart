@@ -93,9 +93,6 @@ class AuthProvider with ChangeNotifier {
     _userDetail = await _userService.getUserDetail();
     // Eğer detay çekilemezse (token geçersiz vs), logout yapabiliriz
     if (_userDetail == null && isAuthenticated) {
-      print(
-        "Kullanıcı detayı alınamadı, token geçersiz olabilir. Çıkış yapılıyor.",
-      );
       await logout(); // Otomatik logout
     }
     _setLoading(false); // Loading bitti

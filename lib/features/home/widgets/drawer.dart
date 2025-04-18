@@ -15,7 +15,6 @@ class MainDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
     final user = authProvider.userDetail;
-    //final user = authProvider.userDetail;
     return Drawer(
       child: Column(
         children: [
@@ -39,7 +38,6 @@ class MainDrawer extends StatelessWidget {
                         const SizedBox(width: 18),
                       ],
                     ),
-
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -98,167 +96,165 @@ class MainDrawer extends StatelessWidget {
             },
           ),
           if (authProvider.isAdmin)
-            ListTile(
-              leading: const Icon(Icons.group, size: 26, color: Colors.black),
-              title: Text(
-                "Kullanıcı Listesi",
-                style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                  color: Colors.black,
-                  fontSize: 24,
-                ),
-              ),
-              onTap: () {
-                Navigator.of(context).pop();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const UserListScreen(),
+            Column(
+              children: [
+                ListTile(
+                  leading: const Icon(
+                    Icons.group,
+                    size: 26,
+                    color: Colors.black,
                   ),
-                );
-              },
-            ),
-          if (authProvider.isAdmin)
-            ListTile(
-              leading: const Icon(
-                Icons.account_circle_outlined,
-                size: 26,
-                color: Colors.black,
-              ),
-              title: Text(
-                "Profilim",
-                style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                  color: Colors.black,
-                  fontSize: 24,
-                ),
-              ),
-              onTap: () {
-                Navigator.of(context).pop();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ProfileScreen(),
+                  title: Text(
+                    "Kullanıcı Listesi",
+                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                      color: Colors.black,
+                      fontSize: 24,
+                    ),
                   ),
-                );
-              },
-            ),
-          if (authProvider.isAdmin)
-            ListTile(
-              leading: const Icon(Icons.create, size: 26, color: Colors.black),
-              title: Text(
-                "Anket Oluştur",
-                style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                  color: Colors.black,
-                  fontSize: 24,
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const UserListScreen(),
+                      ),
+                    );
+                  },
                 ),
-              ),
-              onTap: () {
-                Navigator.of(context).pop();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ProfileScreen(),
+                ListTile(
+                  leading: const Icon(
+                    Icons.account_circle_outlined,
+                    size: 26,
+                    color: Colors.black,
                   ),
-                );
-              },
-            ),
-          if (authProvider.isAdmin)
-            ListTile(
-              leading: const Icon(Icons.list, size: 26, color: Colors.black),
-              title: Text(
-                "Anket Listesi",
-                style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                  color: Colors.black,
-                  fontSize: 24,
-                ),
-              ),
-              onTap: () {
-                Navigator.of(context).pop();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ProfileScreen(),
+                  title: Text(
+                    "Profilim",
+                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                      color: Colors.black,
+                      fontSize: 24,
+                    ),
                   ),
-                );
-              },
-            ),
-          if (authProvider.isAdmin)
-            ListTile(
-              leading: const Icon(
-                Icons.category,
-                size: 26,
-                color: Colors.black,
-              ),
-              title: Text(
-                "Kategori Oluştur",
-                style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                  color: Colors.black,
-                  fontSize: 24,
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ProfileScreen(),
+                      ),
+                    );
+                  },
                 ),
-              ),
-              onTap: () {
-                Navigator.of(context).pop();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ProfileScreen(),
+                ListTile(
+                  leading: const Icon(
+                    Icons.create,
+                    size: 26,
+                    color: Colors.black,
                   ),
-                );
-              },
-            ),
-          if (authProvider.isAdmin)
-            ListTile(
-              leading: const Icon(Icons.poll, size: 26, color: Colors.black),
-              title: Text(
-                "Anket Özeti",
-                style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                  color: Colors.black,
-                  fontSize: 24,
-                ),
-              ),
-              onTap: () {
-                Navigator.of(context).pop();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ProfileScreen(),
+                  title: Text(
+                    "Anket Oluştur",
+                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                      color: Colors.black,
+                      fontSize: 24,
+                    ),
                   ),
-                );
-              },
-            ),
-          if (authProvider.isAuthenticated)
-            ListTile(
-              leading: const Icon(
-                Icons.logout_outlined,
-                size: 26,
-                color: Colors.black,
-              ),
-              title: Text(
-                "Çıkış Yap",
-                style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                  color: Colors.black,
-                  fontSize: 24,
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ProfileScreen(),
+                      ),
+                    );
+                  },
                 ),
-              ),
-              onTap: () {
-                context.read<AuthProvider>().logout();
-              },
+                ListTile(
+                  leading: const Icon(
+                    Icons.list,
+                    size: 26,
+                    color: Colors.black,
+                  ),
+                  title: Text(
+                    "Anket Listesi",
+                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                      color: Colors.black,
+                      fontSize: 24,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ProfileScreen(),
+                      ),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(
+                    Icons.category,
+                    size: 26,
+                    color: Colors.black,
+                  ),
+                  title: Text(
+                    "Kategori Oluştur",
+                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                      color: Colors.black,
+                      fontSize: 24,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ProfileScreen(),
+                      ),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(
+                    Icons.poll,
+                    size: 26,
+                    color: Colors.black,
+                  ),
+                  title: Text(
+                    "Anket Özeti",
+                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                      color: Colors.black,
+                      fontSize: 24,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ProfileScreen(),
+                      ),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(
+                    Icons.logout_outlined,
+                    size: 26,
+                    color: Colors.black,
+                  ),
+                  title: Text(
+                    "Çıkış Yap",
+                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                      color: Colors.black,
+                      fontSize: 24,
+                    ),
+                  ),
+                  onTap: () {
+                    context.read<AuthProvider>().logout();
+                  },
+                ),
+              ],
             ),
-
-          // Align(
-          //   alignment: Alignment.bottomCenter,
-          //   child: Padding(
-          //     padding: const EdgeInsets.only(
-          //       top: 230,
-          //     ), // biraz yukarı kaldırmak istersen
-          //     child: IconButton(
-          //       icon: const Icon(Icons.logout),
-          //       tooltip: 'Çıkış Yap',
-          //       onPressed: () {
-          //         context.read<AuthProvider>().logout();
-          //       },
-          //     ),
-          //   ),
-          // ),
         ],
       ),
     );

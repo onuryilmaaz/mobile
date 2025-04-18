@@ -17,7 +17,7 @@ class HomeScreen extends StatelessWidget {
     void _setScreen(String identifier) async {}
 
     return Scaffold(
-      backgroundColor: Colors.teal,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: const Text('POLLING-APP'),
@@ -77,13 +77,15 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       drawer: MainDrawer(onSelectScreen: _setScreen),
-      body: Center(
+      body: Card(
+        margin: EdgeInsets.symmetric(horizontal: 32, vertical: 180),
+        color: Colors.teal,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (user != null) ...[
               Text(
-                'Hoşgeldin, ${user.fullName ?? user.email}',
+                'Hoşgeldin, ${user.fullName}',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,
