@@ -86,8 +86,12 @@ class PollService {
         body: json.encode(pollDto.toJson()),
       );
 
-      if (response.statusCode == 201) {
-        return json.decode(response.body);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        if (response.body.isNotEmpty) {
+          return json.decode(response.body);
+        } else {
+          return {}; // veya istediğin boş bir Map
+        }
       } else {
         throw Exception('Anket oluşturulamadı: ${response.statusCode}');
       }
@@ -189,7 +193,6 @@ class PollService {
     int pollId,
     PollResponseDto responseDto,
   ) async {
-    print(json.encode(responseDto.toJson()));
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/Poll/submit/$pollId'),
@@ -197,9 +200,13 @@ class PollService {
         body: json.encode(responseDto.toJson()),
       );
 
-      return response.statusCode == 200;
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        throw Exception('Anket yanıtı gönderilemedi: ${response.statusCode}');
+      }
     } catch (e) {
-      throw Exception('Anket yanıtları gönderilemedi: $e');
+      throw Exception('Anket yanıtı gönderilemedi: $e');
     }
   }
 }
