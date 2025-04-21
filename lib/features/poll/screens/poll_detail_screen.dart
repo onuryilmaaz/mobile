@@ -1,17 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/features/poll/models/option_detail_dto.dart';
-import 'package:mobile/features/poll/models/question_detail_dto.dart';
-import 'package:provider/provider.dart';
-import 'package:mobile/features/poll/models/poll_detail_dto.dart';
-import 'package:mobile/features/poll/models/poll_response_dto.dart';
-import 'package:mobile/features/poll/providers/poll_provider.dart';
-import 'package:mobile/features/poll/models/answer_dto.dart';
-
-typedef Option = OptionDetailDto;
+import 'package:mobile/features/poll/controller/answer_controller.dart';
+import 'package:mobile/features/poll/model/poll_model.dart';
+import 'package:mobile/features/poll/services/services.dart';
 
 class PollDetailScreen extends StatefulWidget {
   const PollDetailScreen({super.key, required this.pollId});
-
   final int pollId;
 
   @override
@@ -19,192 +12,150 @@ class PollDetailScreen extends StatefulWidget {
 }
 
 class _PollDetailScreenState extends State<PollDetailScreen> {
-  final Map<int, int?> _selectedOptions = {};
-  bool _isSubmitting = false;
+  final service = Services();
+  final AnswerController _answerController = AnswerController();
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadPollDetails());
-  }
-
-  Future<void> _loadPollDetails() async {
-    final pollProvider = Provider.of<PollProvider>(context, listen: false);
-    await pollProvider.fetchPollById(widget.pollId);
-  }
-
-  Future<void> _submitResponse() async {
-    if (_selectedOptions.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Lütfen en az bir seçenek seçin')),
-        );
-      }
-      return;
-    }
-
-    setState(() => _isSubmitting = true);
-
-    try {
-      final pollProvider = Provider.of<PollProvider>(context, listen: false);
-
-      final answers =
-          _selectedOptions.entries.map((entry) {
-            final Map<int, int?> optionMap = {};
-            if (entry.value != null) {
-              optionMap[entry.value!] = null;
-            }
-
-            return AnswerDto(
-              questionId: entry.key,
-              selectedOptionIds: optionMap,
-            );
-          }).toList();
-
-      final response = PollResponseDto(answers: answers);
-
-      final result = await pollProvider.submitPollResponse(
-        widget.pollId,
-        response,
-      );
-
-      if (mounted) {
-        if (result) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Yanıtınız kaydedildi!')),
-          );
-          await _loadPollDetails();
-        } else {
-          showError('Yanıt gönderilemedi');
-        }
-      }
-    } catch (e) {
-      if (mounted) showError('Hata: ${e.toString()}');
-    } finally {
-      if (mounted) setState(() => _isSubmitting = false);
-    }
-  }
-
-  void showError(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    service.getActivePollById(widget.pollId);
   }
 
   @override
   Widget build(BuildContext context) {
+    final service = Services();
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Anket Detayı'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadPollDetails,
-          ),
-        ],
-      ),
-      body: Consumer<PollProvider>(
-        builder: (context, pollProvider, _) {
-          if (pollProvider.isLoading)
-            return const Center(child: CircularProgressIndicator());
-          if (pollProvider.errorMessage != null)
-            return _ErrorView(pollProvider);
-          if (pollProvider.currentPoll == null)
-            return const Center(child: Text('Anket bulunamadı'));
+      appBar: AppBar(title: const Text('Anket Detayı')),
+      body: FutureBuilder(
+        future: service.getActivePollById(widget.pollId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasData) {
+            final data = snapshot.data!;
+            return ListView.builder(
+              itemCount: 1,
+              itemBuilder: (context, index) {
+                return Container(
+                  padding: const EdgeInsets.all(8),
+                  margin: const EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 8,
+                  ),
+                  child: Column(
+                    children: [
+                      _PollDetailItem(data: data),
+                      const SizedBox(height: 24),
+                      if (data.questions != null)
+                        ...data.questions!
+                            .map((q) => _PollQuestionItem(question: q))
+                            .toList(),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () async {
+                          // AnswerController'dan cevapları al
+                          final answers = _answerController.getAnswers();
+                          print(
+                            "Gönderilecek cevaplar: $answers",
+                          ); // Burada cevapları yazdırarak kontrol edebilirsiniz
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                _PollHeader(poll: pollProvider.currentPoll!),
-                const SizedBox(height: 24),
-                _buildQuestions(pollProvider.currentPoll!),
-                const SizedBox(height: 24),
-                _SubmitButton(
-                  isSubmitting: _isSubmitting,
-                  onSubmit: _submitResponse,
-                ),
-              ],
+                          // Servise gönder
+                          await service.submitPollResponse(
+                            widget.pollId,
+                            answers,
+                          );
+                        },
+                        child: const Text('Gönder'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          }
+          return Center(
+            child: Text(
+              "Anket detayları yüklenemedi - Hata kodu: ${snapshot.error}",
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           );
         },
       ),
     );
   }
-
-  Widget _buildQuestions(PollDetailDto poll) {
-    return Column(
-      children:
-          poll.questions
-              .map(
-                (question) => _QuestionSection(
-                  question: question,
-                  selectedOptions: _selectedOptions,
-                  onOptionSelected:
-                      (questionId, optionId) => setState(() {
-                        _selectedOptions[questionId] = optionId;
-                      }),
-                ),
-              )
-              .toList(),
-    );
-  }
 }
 
-class _PollHeader extends StatelessWidget {
-  final PollDetailDto poll;
-
-  const _PollHeader({required this.poll});
-
+class _PollDetailItem extends StatelessWidget {
+  final PollDetail data;
+  const _PollDetailItem({required this.data});
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(poll.title, style: Theme.of(context).textTheme.headlineSmall),
-            if (poll.description != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                poll.description!,
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-            ],
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                _DateItem(
-                  icon: Icons.calendar_today,
-                  label: 'Oluşturulma',
-                  date: poll.createdDate,
-                ),
-                if (poll.expiryDate != null) ...[
-                  const SizedBox(width: 16),
-                  _DateItem(
-                    icon: Icons.event,
-                    label: 'Bitiş',
-                    date: poll.expiryDate!,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          Card(
+            elevation: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    data.title.toString(),
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  if (data.description != null) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      data.description!,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ],
+                  const SizedBox(height: 16),
+                  Column(
+                    children: [
+                      _DateItem(
+                        icon: Icons.calendar_today,
+                        label: 'Oluşturulma',
+                        date:
+                            data.createdDate.toString() == 'null'
+                                ? DateTime.now()
+                                : DateTime.parse(data.createdDate.toString()),
+                      ),
+                      const SizedBox(width: 16),
+                      _DateItem(
+                        icon: Icons.event,
+                        label: 'Bitiş',
+                        date:
+                            data.expiryDate.toString() == 'null'
+                                ? DateTime.now()
+                                : DateTime.parse(data.expiryDate.toString()),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Chip(
+                    backgroundColor:
+                        data.isActive ?? false
+                            ? Colors.green[100]
+                            : Colors.red[100],
+                    label: Text(
+                      data.isActive ?? false ? 'Aktif' : 'Pasif',
+                      style: TextStyle(
+                        color:
+                            data.isActive ?? false
+                                ? Colors.green[800]
+                                : Colors.red[800],
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
-              ],
-            ),
-            const SizedBox(height: 8),
-            Chip(
-              backgroundColor:
-                  poll.isActive ? Colors.green[100] : Colors.red[100],
-              label: Text(
-                poll.isActive ? 'Aktif' : 'Pasif',
-                style: TextStyle(
-                  color: poll.isActive ? Colors.green[800] : Colors.red[800],
-                  fontWeight: FontWeight.bold,
-                ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -241,137 +192,148 @@ class _DateItem extends StatelessWidget {
   }
 }
 
-class _QuestionSection extends StatelessWidget {
-  final QuestionDetailDto question;
-  final Map<int, int?> selectedOptions;
-  final Function(int, int) onOptionSelected;
+class _PollQuestionItem extends StatefulWidget {
+  final Question question;
+  const _PollQuestionItem({Key? key, required this.question}) : super(key: key);
 
-  const _QuestionSection({
-    required this.question,
-    required this.selectedOptions,
-    required this.onOptionSelected,
-  });
+  @override
+  State<_PollQuestionItem> createState() => _PollQuestionItemState();
+}
+
+class _PollQuestionItemState extends State<_PollQuestionItem> {
+  int? _singleValue;
+  List<int> _multiValues = [];
+  TextEditingController _textController = TextEditingController();
+  late List<Option> _rankOptions;
+
+  final AnswerController _answerController = AnswerController();
+
+  @override
+  void initState() {
+    super.initState();
+    _rankOptions = List.from(widget.question.options);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(question.text, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 12),
-        ...question.options.map(
-          (option) => _OptionItem(
-            option: option,
-            isSelected: selectedOptions[question.id] == option.id,
-            onSelected: () => onOptionSelected(question.id, option.id),
+    final q = widget.question;
+    Widget input;
+    switch (q.type) {
+      case 0:
+        // Single choice
+        input = Column(
+          children:
+              q.options.map((opt) {
+                return RadioListTile<int>(
+                  title: Text(opt.text),
+                  value: opt.id,
+                  groupValue: _singleValue,
+                  onChanged: (v) {
+                    setState(() {
+                      _singleValue = v;
+                      _answerController.setAnswer(q.id, {v!: null}); // Kaydet
+                    });
+                  },
+                );
+              }).toList(),
+        );
+        break;
+      case 1:
+        // Text input
+        input = TextField(
+          controller: _textController,
+          decoration: InputDecoration(
+            labelText: q.text,
+            border: const OutlineInputBorder(),
           ),
-        ),
-        const SizedBox(height: 24),
-      ],
-    );
-  }
-}
-
-class _OptionItem extends StatelessWidget {
-  final Option option;
-  final bool isSelected;
-  final VoidCallback onSelected;
-
-  const _OptionItem({
-    required this.option,
-    required this.isSelected,
-    required this.onSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    // null-aware operatör hatası burada düzeltildi
-    final Color borderColor = isSelected ? Colors.blue : Colors.grey.shade300;
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      color: isSelected ? Colors.blue[50] : null,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-        side: BorderSide(color: borderColor, width: isSelected ? 2 : 1),
-      ),
-      child: InkWell(
-        onTap: onSelected,
-        borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Radio<int>(
-                value: option.id, // Null kontrolü yapıyoruz
-                groupValue: isSelected ? option.id : null,
-                onChanged: (_) => onSelected(),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  option.text,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SubmitButton extends StatelessWidget {
-  final bool isSubmitting;
-  final VoidCallback onSubmit;
-
-  const _SubmitButton({required this.isSubmitting, required this.onSubmit});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: isSubmitting ? null : onSubmit,
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-        ),
-        child:
-            isSubmitting
-                ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-                : const Text('Yanıtı Gönder', style: TextStyle(fontSize: 16)),
-      ),
-    );
-  }
-}
-
-class _ErrorView extends StatelessWidget {
-  final PollProvider provider;
-
-  const _ErrorView(this.provider);
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text('Hata: ${provider.errorMessage}', textAlign: TextAlign.center),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () {
-              provider.clearErrorMessage();
-              context
-                  .findAncestorStateOfType<_PollDetailScreenState>()
-                  ?._loadPollDetails();
+          maxLines: null,
+          onChanged: (value) {
+            _answerController.setAnswer(q.id, {}); // Kaydet (Metin verisi)
+          },
+        );
+        break;
+      case 2:
+        // Yes/No
+        input = Column(
+          children:
+              q.options.map((opt) {
+                return RadioListTile<int>(
+                  title: Text(opt.text),
+                  value: opt.id,
+                  groupValue: _singleValue,
+                  onChanged: (v) {
+                    setState(() {
+                      _singleValue = v;
+                      _answerController.setAnswer(q.id, {v!: null}); // Kaydet
+                    });
+                  },
+                );
+              }).toList(),
+        );
+        break;
+      case 3:
+        // Multi choice
+        input = Column(
+          children:
+              q.options.map((opt) {
+                final checked = _multiValues.contains(opt.id);
+                return CheckboxListTile(
+                  title: Text(opt.text),
+                  value: checked,
+                  onChanged: (v) {
+                    setState(() {
+                      if (v == true)
+                        _multiValues.add(opt.id);
+                      else
+                        _multiValues.remove(opt.id);
+                      _answerController.setAnswer(q.id, _multiValues); // Kaydet
+                    });
+                  },
+                );
+              }).toList(),
+        );
+        break;
+      case 4:
+        // Ranking with proper drag-and-drop layout
+        input = SizedBox(
+          height: _rankOptions.length * 60.0,
+          child: ReorderableListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            onReorder: (oldIndex, newIndex) {
+              setState(() {
+                if (newIndex > oldIndex) newIndex--;
+                final item = _rankOptions.removeAt(oldIndex);
+                _rankOptions.insert(newIndex, item);
+              });
             },
-            child: const Text('Tekrar Dene'),
+            itemCount: _rankOptions.length,
+            itemBuilder: (ctx, index) {
+              final opt = _rankOptions[index];
+              return ListTile(
+                key: ValueKey(opt.id),
+                leading: const Icon(Icons.drag_handle),
+                title: Text(opt.text),
+              );
+            },
           ),
+        );
+        break;
+      default:
+        input = const Text('Bilinmeyen soru tipi');
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${q.orderIndex + 1}. ${q.text}',
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+          const SizedBox(height: 8),
+          input,
         ],
       ),
     );

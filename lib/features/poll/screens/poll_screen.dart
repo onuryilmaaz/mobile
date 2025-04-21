@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/features/home/widgets/drawer.dart';
-import 'package:mobile/features/poll/providers/poll_provider.dart';
-import 'package:mobile/features/poll/widgets/poll_item.dart';
-import 'package:provider/provider.dart';
+import 'package:mobile/features/poll/screens/poll_detail_screen.dart';
+import 'package:mobile/features/poll/services/services.dart';
 
 class PollScreen extends StatefulWidget {
   const PollScreen({super.key});
@@ -12,49 +11,77 @@ class PollScreen extends StatefulWidget {
 }
 
 class _PollScreenState extends State<PollScreen> {
-  @override
-  void initState() {
-    super.initState();
-    // Sayfa ilk açıldığında aktif anketleri çek
-    Future.microtask(
-      () =>
-          Provider.of<PollProvider>(context, listen: false).fetchActivePolls(),
-    );
-  }
-
   void _setScreen(String identifier) async {}
 
   @override
   Widget build(BuildContext context) {
-    final pollProvider = context.watch<PollProvider>();
-    final polls = pollProvider.activePolls;
+    final service = Services();
 
     return Scaffold(
       appBar: AppBar(title: const Text("Poll")),
       backgroundColor: Colors.teal,
       drawer: MainDrawer(onSelectScreen: _setScreen),
-      body: Builder(
-        builder: (context) {
-          if (pollProvider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
+      body: FutureBuilder(
+        future: service.getActivePoll(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasData) {
+            final data = snapshot.data;
+            return ListView.builder(
+              itemCount: data!.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  elevation: 4,
+                  color: Colors.white,
+                  margin: const EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          data[index].title.toString(),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          data[index].description.toString(),
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 12),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => PollDetailScreen(
+                                        pollId: data[index].id!,
+                                      ),
+                                ),
+                              );
+                            },
+                            child: const Text("Ankete Katıl"),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
           }
-
-          if (pollProvider.errorMessage != null) {
-            return Center(child: Text("Hata: ${pollProvider.errorMessage}"));
-          }
-
-          if (polls == null) {
-            return const Center(child: Text("Hiç aktif anket bulunamadı."));
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: polls.length,
-            itemBuilder: (ctx, index) {
-              final poll = polls[index];
-              return PollItem(poll: poll); // poll objesini ver
-            },
-          );
+          return Text("Data yok");
         },
       ),
     );
