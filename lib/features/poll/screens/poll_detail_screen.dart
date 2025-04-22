@@ -23,7 +23,6 @@ class _PollDetailScreenState extends State<PollDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final service = Services();
     return Scaffold(
       appBar: AppBar(title: const Text('Anket Detayı')),
       body: FutureBuilder(
@@ -48,21 +47,24 @@ class _PollDetailScreenState extends State<PollDetailScreen> {
                       const SizedBox(height: 24),
                       if (data.questions != null)
                         ...data.questions!
-                            .map((q) => _PollQuestionItem(question: q))
+                            .map(
+                              (q) => _PollQuestionItem(
+                                question: q,
+                                answerController: _answerController,
+                              ),
+                            )
                             .toList(),
                       const SizedBox(height: 24),
                       ElevatedButton(
                         onPressed: () async {
                           // AnswerController'dan cevapları al
                           final answers = _answerController.getAnswers();
-                          print(
-                            "Gönderilecek cevaplar: $answers",
-                          ); // Burada cevapları yazdırarak kontrol edebilirsiniz
+                          print("Gönderilecek cevaplar: $answers");
 
                           // Servise gönder
                           await service.submitPollResponse(
                             widget.pollId,
-                            answers,
+                            answers, 
                           );
                         },
                         child: const Text('Gönder'),
@@ -194,7 +196,12 @@ class _DateItem extends StatelessWidget {
 
 class _PollQuestionItem extends StatefulWidget {
   final Question question;
-  const _PollQuestionItem({Key? key, required this.question}) : super(key: key);
+  final AnswerController answerController;
+  const _PollQuestionItem({
+    Key? key,
+    required this.question,
+    required this.answerController,
+  }) : super(key: key);
 
   @override
   State<_PollQuestionItem> createState() => _PollQuestionItemState();
@@ -206,7 +213,7 @@ class _PollQuestionItemState extends State<_PollQuestionItem> {
   TextEditingController _textController = TextEditingController();
   late List<Option> _rankOptions;
 
-  final AnswerController _answerController = AnswerController();
+  AnswerController get _answerController => widget.answerController;
 
   @override
   void initState() {
@@ -220,7 +227,7 @@ class _PollQuestionItemState extends State<_PollQuestionItem> {
     Widget input;
     switch (q.type) {
       case 0:
-        // Single choice
+      case 2:
         input = Column(
           children:
               q.options.map((opt) {
@@ -231,7 +238,7 @@ class _PollQuestionItemState extends State<_PollQuestionItem> {
                   onChanged: (v) {
                     setState(() {
                       _singleValue = v;
-                      _answerController.setAnswer(q.id, {v!: null}); // Kaydet
+                      _answerController.setSingleChoice(q.id, v!);
                     });
                   },
                 );
@@ -239,7 +246,6 @@ class _PollQuestionItemState extends State<_PollQuestionItem> {
         );
         break;
       case 1:
-        // Text input
         input = TextField(
           controller: _textController,
           decoration: InputDecoration(
@@ -248,31 +254,11 @@ class _PollQuestionItemState extends State<_PollQuestionItem> {
           ),
           maxLines: null,
           onChanged: (value) {
-            _answerController.setAnswer(q.id, {}); // Kaydet (Metin verisi)
+            _answerController.setTextAnswer(q.id, value);
           },
         );
         break;
-      case 2:
-        // Yes/No
-        input = Column(
-          children:
-              q.options.map((opt) {
-                return RadioListTile<int>(
-                  title: Text(opt.text),
-                  value: opt.id,
-                  groupValue: _singleValue,
-                  onChanged: (v) {
-                    setState(() {
-                      _singleValue = v;
-                      _answerController.setAnswer(q.id, {v!: null}); // Kaydet
-                    });
-                  },
-                );
-              }).toList(),
-        );
-        break;
       case 3:
-        // Multi choice
         input = Column(
           children:
               q.options.map((opt) {
@@ -282,11 +268,12 @@ class _PollQuestionItemState extends State<_PollQuestionItem> {
                   value: checked,
                   onChanged: (v) {
                     setState(() {
-                      if (v == true)
+                      if (v == true) {
                         _multiValues.add(opt.id);
-                      else
+                      } else {
                         _multiValues.remove(opt.id);
-                      _answerController.setAnswer(q.id, _multiValues); // Kaydet
+                      }
+                      _answerController.setMultiChoice(q.id, _multiValues);
                     });
                   },
                 );
@@ -294,7 +281,6 @@ class _PollQuestionItemState extends State<_PollQuestionItem> {
         );
         break;
       case 4:
-        // Ranking with proper drag-and-drop layout
         input = SizedBox(
           height: _rankOptions.length * 60.0,
           child: ReorderableListView.builder(
@@ -305,6 +291,10 @@ class _PollQuestionItemState extends State<_PollQuestionItem> {
                 if (newIndex > oldIndex) newIndex--;
                 final item = _rankOptions.removeAt(oldIndex);
                 _rankOptions.insert(newIndex, item);
+                _answerController.setRanking(
+                  q.id,
+                  _rankOptions.map((e) => e.id).toList(),
+                );
               });
             },
             itemCount: _rankOptions.length,

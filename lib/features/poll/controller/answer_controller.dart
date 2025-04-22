@@ -1,69 +1,38 @@
 import 'package:mobile/features/poll/model/poll_response.dart';
 
 class AnswerController {
-  final Map<int, dynamic> _answers = {}; // questionId -> answer
+  final Map<int, AnswerDto> _answers = {};
 
-  void selectOption(int questionId, int optionId, bool isSelected) {
-    if (!_answers.containsKey(questionId)) {
-      _answers[questionId] = <int>{};
-    }
-    final selectedOptions = _answers[questionId] as Set<int>;
-    if (isSelected) {
-      selectedOptions.add(optionId);
-    } else {
-      selectedOptions.remove(optionId);
-    }
+  void setSingleChoice(int questionId, int selectedOptionId) {
+    _answers[questionId] = AnswerDto(
+      questionId: questionId,
+      selectedOptionIds: {selectedOptionId: null},
+    );
   }
 
   void setTextAnswer(int questionId, String text) {
-    _answers[questionId] = text;
+    _answers[questionId] = AnswerDto(questionId: questionId, textAnswer: text);
   }
 
-  void setPointAnswer(int questionId, int optionId, int point) {
-    if (!_answers.containsKey(questionId)) {
-      _answers[questionId] = <int, int>{};
-    }
-    final pointsMap = _answers[questionId] as Map<int, int>;
-    pointsMap[optionId] = point;
+  void setMultiChoice(int questionId, List<int> selectedIds) {
+    final map = {for (var id in selectedIds) id: null};
+    _answers[questionId] = AnswerDto(
+      questionId: questionId,
+      selectedOptionIds: map,
+    );
   }
 
-  void setAnswer(int questionId, dynamic answer) {
-    _answers[questionId] = answer;
+  void setRanking(int questionId, List<int> rankedIds) {
+    final map = {
+      for (int i = 0; i < rankedIds.length; i++) rankedIds[i]: i + 1,
+    };
+    _answers[questionId] = AnswerDto(
+      questionId: questionId,
+      selectedOptionIds: map,
+    );
   }
 
   List<AnswerDto> getAnswers() {
-    List<AnswerDto> result = [];
-
-    _answers.forEach((questionId, answer) {
-      if (answer is String) {
-        result.add(
-          AnswerDto(
-            questionId: questionId,
-            selectedOptionIds: {},
-            textAnswer: answer,
-          ),
-        );
-      } else if (answer is Set<int>) {
-        Map<int, int?> selectedOptions = {
-          for (var optionId in answer) optionId: null,
-        };
-        result.add(
-          AnswerDto(questionId: questionId, selectedOptionIds: selectedOptions),
-        );
-      } else if (answer is Map<int, int>) {
-        result.add(
-          AnswerDto(
-            questionId: questionId,
-            selectedOptionIds: Map<int, int?>.from(answer),
-          ),
-        );
-      }
-    });
-
-    return result;
-  }
-
-  void clear() {
-    _answers.clear();
+    return _answers.values.toList();
   }
 }

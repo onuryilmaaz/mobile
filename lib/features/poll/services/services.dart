@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:mobile/core/services/storage_service.dart';
 import 'package:mobile/features/poll/model/poll_model.dart';

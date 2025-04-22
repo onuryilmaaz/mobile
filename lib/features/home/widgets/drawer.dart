@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
 import 'package:mobile/features/home/screens/home_screen.dart';
+import 'package:mobile/features/poll/screens/poll_create_screen.dart';
 import 'package:mobile/features/poll/screens/poll_screen.dart';
 import 'package:mobile/features/user/screens/profile_screen.dart';
 import 'package:mobile/features/user/screens/user_list_screen.dart';
@@ -162,7 +163,7 @@ class MainDrawer extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const ProfileScreen(),
+                        builder: (context) => const PollCreateScreen(),
                       ),
                     );
                   },

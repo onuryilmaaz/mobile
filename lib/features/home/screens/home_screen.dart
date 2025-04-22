@@ -17,7 +17,7 @@ class HomeScreen extends StatelessWidget {
     void _setScreen(String identifier) async {}
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.teal,
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: const Text('POLLING-APP'),
@@ -77,9 +77,7 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       drawer: MainDrawer(onSelectScreen: _setScreen),
-      body: Card(
-        margin: EdgeInsets.symmetric(horizontal: 32, vertical: 180),
-        color: Colors.teal,
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -92,7 +90,10 @@ class HomeScreen extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Text('Roller: ${user.roles.join(', ')}'),
+              Text(
+                'Roller: ${user.roles.join(', ')}',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
               const SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.all(16.0),

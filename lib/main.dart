@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/features/poll/providers/poll_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
 import 'package:mobile/features/user/providers/user_provider.dart';
-// import 'package:mobile/features/auth/screens/login_screen.dart';
 import 'package:mobile/features/home/screens/home_screen.dart';
 import 'package:mobile/shared/widgets/loading_indicator.dart';
 
@@ -20,7 +18,6 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => AuthProvider()),
         ChangeNotifierProvider(create: (context) => UserProvider()),
-        ChangeNotifierProvider(create: (context) => PollProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -47,11 +44,5 @@ class AuthWrapper extends StatelessWidget {
     }
 
     return HomeScreen();
-
-    // if (authProvider.isAuthenticated) {
-    //   return const HomeScreen();
-    // } else {
-    //   return const LoginScreen();
-    // }
   }
 }
