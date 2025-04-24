@@ -1,0 +1,67 @@
+{
+  "title": "Anket Başlığı",
+  "description": "Açıklama",
+  "createdDate": "2025-04-22T00:00:00.000",
+  "expiryDate": "2025-04-30T00:00:00.000",
+  "isActive": true,
+  "questions": [
+    {
+      "text": "Soru 1",
+      "type": 0,
+      "orderIndex": 0,
+      "isRequired": true,
+      "maxSelections": 0,
+      "options": [
+        { "text": "a", "orderIndex": 0 },
+        { "text": "b", "orderIndex": 0 },
+        { "text": "c", "orderIndex": 0 },
+        { "text": "d", "orderIndex": 0 },
+        { "text": "e", "orderIndex": 0 }
+      ]
+    },
+    {
+      "text": "Soru 2",
+      "type": 1,
+      "orderIndex": 0,
+      "isRequired": true,
+      "maxSelections": 0,
+      "options": []
+    },
+    {
+      "text": "Soru 3",
+      "type": 2,
+      "orderIndex": 0,
+      "isRequired": true,
+      "maxSelections": 0,
+      "options": []
+    },
+    {
+      "text": "Soru 4",
+      "type": 3,
+      "orderIndex": 0,
+      "isRequired": true,
+      "maxSelections": 0,
+      "options": [
+        { "text": "aa", "orderIndex": 0 },
+        { "text": "bb", "orderIndex": 0 },
+        { "text": "cc", "orderIndex": 0 },
+        { "text": "dd", "orderIndex": 0 },
+        { "text": "ee", "orderIndex": 0 }
+      ]
+    },
+    {
+      "text": "Soru 5",
+      "type": 4,
+      "orderIndex": 0,
+      "isRequired": true,
+      "maxSelections": 3,
+      "options": [
+        { "text": "aa", "orderIndex": 0 },
+        { "text": "ab", "orderIndex": 0 },
+        { "text": "ac", "orderIndex": 0 },
+        { "text": "ad", "orderIndex": 0 },
+        { "text": "ae", "orderIndex": 0 }
+      ]
+    }
+  ]
+}

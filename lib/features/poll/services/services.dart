@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:mobile/core/services/storage_service.dart';
+import 'package:mobile/features/poll/model/poll_create.dart';
 import 'package:mobile/features/poll/model/poll_model.dart';
 import 'package:mobile/features/poll/model/poll_response.dart';
 
@@ -18,6 +19,27 @@ class Services {
         'Content-Type': 'application/json',
       },
     );
+  }
+
+  Future<void> createPoll(PollCreate poll) async {
+    final res = "$url/create";
+
+    try {
+      final response = await dio.post(
+        res,
+        data: poll.toJson(),
+        options: await getHeaders(),
+      );
+
+      if (response.statusCode == 200) {
+        print('Anket başarıyla oluşturuldu.');
+      } else {
+        print('Beklenmeyen hata: ${response.statusCode}');
+        print('Detay: ${response.data}');
+      }
+    } catch (e) {
+      print('POST işlemi sırasında hata oluştu: $e');
+    }
   }
 
   Future<List<PollDetail>> getActivePoll() async {

@@ -1,0 +1,133 @@
+{
+  "id": 1007,
+  "title": "Müşteri Memnuniyet Anketi",
+  "categoryId": 1020,
+  "categoryName": "Test",
+  "questions": [
+    {
+      "id": 1055,
+      "text": "Hizmetlerimizden genel olarak ne kadar memnunsunuz?",
+      "options": [
+        {
+          "id": 95,
+          "text": "Çok memnunum",
+          "orderIndex": 0
+        },
+        {
+          "id": 96,
+          "text": "Memnunum",
+          "orderIndex": 1
+        },
+        {
+          "id": 97,
+          "text": "Kararsızım",
+          "orderIndex": 2
+        },
+        {
+          "id": 98,
+          "text": "Memnun değilim",
+          "orderIndex": 3
+        },
+        {
+          "id": 99,
+          "text": "Hiç memnun değilim",
+          "orderIndex": 4
+        }
+      ]
+    },
+    {
+      "id": 1056,
+      "text": "Müşteri hizmetlerimiz hakkında ne düşünüyorsunuz?",
+      "options": []
+    },
+    {
+      "id": 1057,
+      "text": "Ürünlerimizi arkadaşlarınıza tavsiye eder misiniz?",
+      "options": [
+        {
+          "id": 100,
+          "text": "Evet",
+          "orderIndex": 0
+        },
+        {
+          "id": 101,
+          "text": "Hayır",
+          "orderIndex": 1
+        }
+      ]
+    },
+    {
+      "id": 1058,
+      "text": "Sizce hangi alanlarda kendimizi geliştirmeliyiz? (Birden fazla seçenek işaretleyebilirsiniz)",
+      "options": [
+        {
+          "id": 102,
+          "text": "Ürün kalitesi",
+          "orderIndex": 0
+        },
+        {
+          "id": 103,
+          "text": "Fiyatlandırma",
+          "orderIndex": 1
+        },
+        {
+          "id": 104,
+          "text": "Müşteri hizmetleri",
+          "orderIndex": 2
+        },
+        {
+          "id": 105,
+          "text": "Teslimat süresi",
+          "orderIndex": 3
+        },
+        {
+          "id": 106,
+          "text": "Web sitesi kullanımı",
+          "orderIndex": 4
+        }
+      ]
+    },
+    {
+      "id": 1059,
+      "text": "Aşağıdaki özelliklerden size göre en önemli üç tanesini seçip sıralayınız.",
+      "options": [
+        {
+          "id": 107,
+          "text": "Ürün kalitesi",
+          "orderIndex": 0
+        },
+        {
+          "id": 108,
+          "text": "Fiyat",
+          "orderIndex": 1
+        },
+        {
+          "id": 109,
+          "text": "Hızlı teslimat",
+          "orderIndex": 2
+        },
+        {
+          "id": 110,
+          "text": "Müşteri desteği",
+          "orderIndex": 3
+        },
+        {
+          "id": 111,
+          "text": "Kolay iade süreci",
+          "orderIndex": 4
+        },
+        {
+          "id": 112,
+          "text": "Çeşitlilik",
+          "orderIndex": 5
+        },
+        {
+          "id": 113,
+          "text": "Kullanım kolaylığı",
+          "orderIndex": 6
+        }
+      ]
+    }
+  ],
+  "message": "Anket başarıyla oluşturuldu."
+}
