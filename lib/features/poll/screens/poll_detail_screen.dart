@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_to_list_in_spreads, use_super_parameters, prefer_final_fields
+
 import 'package:flutter/material.dart';
 import 'package:mobile/features/poll/controller/answer_controller.dart';
 import 'package:mobile/features/poll/model/poll_model.dart';
@@ -59,12 +61,11 @@ class _PollDetailScreenState extends State<PollDetailScreen> {
                         onPressed: () async {
                           // AnswerController'dan cevapları al
                           final answers = _answerController.getAnswers();
-                          print("Gönderilecek cevaplar: $answers");
 
                           // Servise gönder
                           await service.submitPollResponse(
                             widget.pollId,
-                            answers, 
+                            answers,
                           );
                         },
                         child: const Text('Gönder'),
@@ -88,7 +89,7 @@ class _PollDetailScreenState extends State<PollDetailScreen> {
 }
 
 class _PollDetailItem extends StatelessWidget {
-  final PollDetail data;
+  final PollsDetail data;
   const _PollDetailItem({required this.data});
   @override
   Widget build(BuildContext context) {
@@ -98,63 +99,94 @@ class _PollDetailItem extends StatelessWidget {
         children: [
           Card(
             elevation: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    data.title.toString(),
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  if (data.description != null) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      data.description!,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                  ],
-                  const SizedBox(height: 16),
-                  Column(
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _DateItem(
-                        icon: Icons.calendar_today,
-                        label: 'Oluşturulma',
-                        date:
-                            data.createdDate.toString() == 'null'
-                                ? DateTime.now()
-                                : DateTime.parse(data.createdDate.toString()),
+                      // Başlık
+                      Text(
+                        data.title.toString(),
+                        style: Theme.of(context).textTheme.headlineSmall,
                       ),
-                      const SizedBox(width: 16),
-                      _DateItem(
-                        icon: Icons.event,
-                        label: 'Bitiş',
-                        date:
-                            data.expiryDate.toString() == 'null'
-                                ? DateTime.now()
-                                : DateTime.parse(data.expiryDate.toString()),
+
+                      // Açıklama
+                      if (data.description != null) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          data.description!,
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                      ],
+
+                      const SizedBox(height: 16),
+
+                      // Tarihler
+                      Column(
+                        children: [
+                          _DateItem(
+                            icon: Icons.calendar_today,
+                            label: 'Oluşturulma',
+                            date:
+                                data.createdDate.toString() == 'null'
+                                    ? DateTime.now()
+                                    : DateTime.parse(
+                                      data.createdDate.toString(),
+                                    ),
+                          ),
+                          const SizedBox(width: 16),
+                          _DateItem(
+                            icon: Icons.event,
+                            label: 'Bitiş',
+                            date:
+                                data.expiryDate.toString() == 'null'
+                                    ? DateTime.now()
+                                    : DateTime.parse(
+                                      data.expiryDate.toString(),
+                                    ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      // Durum Chip'i
+                      Chip(
+                        backgroundColor:
+                            data.isActive ?? false
+                                ? Colors.green[100]
+                                : Colors.red[100],
+                        label: Text(
+                          data.isActive ?? false ? 'Aktif' : 'Pasif',
+                          style: TextStyle(
+                            color:
+                                data.isActive ?? false
+                                    ? Colors.green[800]
+                                    : Colors.red[800],
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  Chip(
-                    backgroundColor:
-                        data.isActive ?? false
-                            ? Colors.green[100]
-                            : Colors.red[100],
+                ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Chip(
+                    backgroundColor: Colors.blue[100],
                     label: Text(
-                      data.isActive ?? false ? 'Aktif' : 'Pasif',
+                      data.newCategoryName ?? "",
                       style: TextStyle(
-                        color:
-                            data.isActive ?? false
-                                ? Colors.green[800]
-                                : Colors.red[800],
+                        color: Colors.blue[800],
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
@@ -249,6 +281,7 @@ class _PollQuestionItemState extends State<_PollQuestionItem> {
         input = TextField(
           controller: _textController,
           decoration: InputDecoration(
+            hintText: 'Cevabınızı buraya yazın',
             labelText: q.text,
             border: const OutlineInputBorder(),
           ),

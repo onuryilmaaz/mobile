@@ -40,6 +40,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
   }
 
   Future<void> _showUpdateDialog(Category category) async {
+    // ignore: no_leading_underscores_for_local_identifiers
     final TextEditingController _editController = TextEditingController(
       text: category.name,
     );
@@ -78,23 +79,48 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _controller,
-                            decoration: const InputDecoration(
-                              labelText: "Kategori adı",
+                        TextField(
+                          controller: _controller,
+                          decoration: InputDecoration(
+                            labelText: "Kategori adı",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.add),
-                          onPressed: _addCategory,
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: _addCategory,
+                            icon: const Icon(
+                              Icons.add,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                            label: const Text(
+                              "Yeni Kategori Ekle",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.teal,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
+
                   Expanded(
                     child: ListView.builder(
                       itemCount: _categories.length,
@@ -108,10 +134,12 @@ class _CategoryScreenState extends State<CategoryScreen> {
                               IconButton(
                                 icon: const Icon(Icons.edit),
                                 onPressed: () => _showUpdateDialog(category),
+                                color: Colors.amber,
                               ),
                               IconButton(
                                 icon: const Icon(Icons.delete),
                                 onPressed: () => _deleteCategory(category.id),
+                                color: Colors.red,
                               ),
                             ],
                           ),

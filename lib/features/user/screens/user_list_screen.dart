@@ -75,6 +75,7 @@ class _UserListScreenState extends State<UserListScreen> {
                             .read<UserProvider>()
                             .toggleUserStatus(user.id, user.isActive);
                         if (!success && mounted) {
+                          // ignore: use_build_context_synchronously
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(

@@ -146,6 +146,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ? const LoadingIndicator()
                       : ElevatedButton(
                         onPressed: _register,
+                        // ignore: sort_child_properties_last
                         child: const Text('Kayıt Ol'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.teal, // Arka plan rengi

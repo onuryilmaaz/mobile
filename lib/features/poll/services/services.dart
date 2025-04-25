@@ -1,9 +1,15 @@
+// ignore_for_file: unnecessary_brace_in_string_interps
+
+import 'dart:developer';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:mobile/core/services/storage_service.dart';
 import 'package:mobile/features/poll/model/poll_create.dart';
 import 'package:mobile/features/poll/model/poll_model.dart';
 import 'package:mobile/features/poll/model/poll_response.dart';
+import 'package:mobile/features/poll/model/poll_update.dart';
+import 'package:mobile/features/poll/model/polls_response.dart';
+import 'package:mobile/features/poll/model/poll_detail.dart';
 
 class Services {
   final dio = Dio();
@@ -31,25 +37,58 @@ class Services {
         options: await getHeaders(),
       );
 
-      if (response.statusCode == 200) {
-        print('Anket başarıyla oluşturuldu.');
+      if (response.statusCode == 201) {
+        log('Anket başarıyla oluşturuldu.');
       } else {
-        print('Beklenmeyen hata: ${response.statusCode}');
-        print('Detay: ${response.data}');
+        log('Beklenmeyen hata: ${response.statusCode}');
+        log('Detay: ${response.data}');
       }
     } catch (e) {
-      print('POST işlemi sırasında hata oluştu: $e');
+      log('POST işlemi sırasında hata oluştu: $e');
     }
   }
 
-  Future<List<PollDetail>> getActivePoll() async {
-    List<PollDetail> pollDetail = [];
+  Future<void> updatePoll(PollUpdate poll) async {
+    try {
+      final response = await dio.put(
+        '$url/update/${poll.id}',
+        options: await getHeaders(),
+        data: poll.toJson(),
+      );
+      if (response.statusCode! < 200 && response.statusCode! > 299) {
+        throw Exception('Anket güncellenemedi');
+      }
+    } catch (e) {
+      throw Exception('Bir hata oluştu: $e');
+    }
+  }
+
+  Future<PollDetail> getPoll(int pollId) async {
+    try {
+      final response = await dio.get(
+        '$url/$pollId',
+        options: await getHeaders(),
+      );
+      log('Gelen JSON: ${response.data}');
+      if (response.statusCode == 200) {
+        // Poll verisini başarılı bir şekilde alırsak
+        return PollDetail.fromJson(response.data);
+      } else {
+        throw Exception('Poll verisi alınamadı');
+      }
+    } catch (e) {
+      throw Exception('Bir hata oluştu: $e');
+    }
+  }
+
+  Future<List<PollsDetail>> getActivePoll() async {
+    List<PollsDetail> pollDetail = [];
     final response = await dio.get("$url/active");
 
     if (response.statusCode == HttpStatus.ok) {
       final responseData = response.data as List;
       pollDetail =
-          responseData.map((poll) => PollDetail.fromJson(poll)).toList();
+          responseData.map((poll) => PollsDetail.fromJson(poll)).toList();
     } else {
       throw Exception("Anket detayları yüklenemedi");
     }
@@ -57,11 +96,55 @@ class Services {
     return pollDetail;
   }
 
-  Future<PollDetail> getActivePollById(int pollId) async {
+  Future<void> togglePollStatus(int pollId) async {
+    try {
+      await dio.delete("$url/toogle/$pollId", options: await getHeaders());
+    } catch (e) {
+      throw Exception("Durum güncellenemedi: $e");
+    }
+  }
+
+  Future<List<PollsResponse>> pollsResponse() async {
+    List<PollsResponse> pollsResponse = [];
+    final response = await dio.get(
+      "$url/my-polls",
+      options: await getHeaders(),
+    );
+
+    if (response.statusCode == HttpStatus.ok) {
+      final responseData = response.data as List;
+      pollsResponse =
+          responseData.map((poll) => PollsResponse.fromJson(poll)).toList();
+    } else {
+      throw Exception("Anket detayları yüklenemedi");
+    }
+
+    return pollsResponse;
+  }
+
+  Future<void> deletePoll(int pollId) async {
+    try {
+      final response = await dio.delete(
+        "$url/delete/$pollId",
+        options: await getHeaders(),
+      );
+
+      if (response.statusCode == 200 && response.data["success"] == true) {
+        // Anket başarıyla silindi
+        return;
+      } else {
+        throw Exception(response.data["message"] ?? "Anket silinemedi.");
+      }
+    } catch (e) {
+      throw Exception("Anket silinirken bir hata oluştu: $e");
+    }
+  }
+
+  Future<PollsDetail> getActivePollById(int pollId) async {
     final response = await dio.get('$url/$pollId');
     if (response.statusCode == 200) {
       final json = response.data as Map<String, dynamic>;
-      return PollDetail.fromJson(json);
+      return PollsDetail.fromJson(json);
     } else {
       throw Exception(
         'Anket detayları alınırken bir hata oluştu: ${response.statusCode}',
@@ -84,14 +167,14 @@ class Services {
       );
 
       if (response.statusCode == 200) {
-        print('Anket yanıtı başarıyla gönderildi.');
-        print(payload);
+        log('Anket yanıtı başarıyla gönderildi.');
+        log("${payload}");
       } else {
-        print('Beklenmeyen hata: ${response.statusCode}');
-        print('Detay: ${response.data}');
+        log('Beklenmeyen hata: ${response.statusCode}');
+        log('Detay: ${response.data}');
       }
     } catch (e) {
-      print('POST işlemi sırasında hata oluştu: $e');
+      log('POST işlemi sırasında hata oluştu: $e');
     }
   }
 }

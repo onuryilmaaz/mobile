@@ -3,19 +3,19 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/features/category/model/category_model.dart';
-import 'package:mobile/features/category/screens/category_screen.dart';
 import 'package:mobile/features/category/services/category_service.dart';
-import 'package:mobile/features/poll/model/poll_create.dart';
+import 'package:mobile/features/poll/model/poll_update.dart';
 import 'package:mobile/features/poll/services/services.dart';
 
-class PollCreateScreen extends StatefulWidget {
-  const PollCreateScreen({super.key});
+class PollUpdateScreen extends StatefulWidget {
+  final int pollId;
+  const PollUpdateScreen({required this.pollId, super.key});
 
   @override
-  State<PollCreateScreen> createState() => _PollCreateScreenState();
+  State<PollUpdateScreen> createState() => _PollUpdateScreenState();
 }
 
-class _PollCreateScreenState extends State<PollCreateScreen> {
+class _PollUpdateScreenState extends State<PollUpdateScreen> {
   final _formKey = GlobalKey<FormState>();
 
   int? _selectedCategoryId;
@@ -25,9 +25,88 @@ class _PollCreateScreenState extends State<PollCreateScreen> {
   DateTime? _startDate;
   DateTime? _endDate;
   bool _isActive = true;
+  bool _isLoading = true;
+  String? _errorMessage;
 
   final Services services = Services();
   final List<Question> _questions = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPollData();
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+    _categoryController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadPollData() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final pollDetail = await services.getPoll(widget.pollId);
+
+      // Populate form fields with existing data
+      _titleController.text = pollDetail.title!;
+      _descriptionController.text = pollDetail.description ?? '';
+      _selectedCategoryId = pollDetail.categoryId;
+      _categoryController.text = pollDetail.newCategoryName!;
+
+      if (pollDetail.createdDate != null) {
+        _startDate = DateTime.parse(pollDetail.createdDate!);
+      }
+
+      if (pollDetail.expiryDate != null) {
+        _endDate = DateTime.parse(pollDetail.expiryDate!);
+      }
+
+      _isActive = pollDetail.isActive!;
+
+      // Load existing questions
+      _questions.clear();
+      if (pollDetail.questions != null) {
+        for (var q in pollDetail.questions!) {
+          final question = Question(
+            orderIndex: q.orderIndex ?? _questions.length,
+          );
+          question.text = q.text ?? '';
+          question.type = q.type ?? 0;
+          question.isRequired = q.isRequired ?? true;
+          question.maxSelections = q.maxSelections ?? 0;
+
+          // Load options if they exist
+          if (q.options != null) {
+            for (var o in q.options!) {
+              final option = Option(
+                orderIndex: o.orderIndex ?? question.options.length,
+              );
+              option.text = o.text ?? '';
+              question.options.add(option);
+            }
+          }
+
+          _questions.add(question);
+        }
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Anket verisi yüklenemedi: $e';
+      });
+    }
+  }
 
   Future<void> _selectCategory() async {
     final categories = await CategoryService().fetchCategories();
@@ -107,18 +186,19 @@ class _PollCreateScreenState extends State<PollCreateScreen> {
       return;
     }
 
-    final poll = PollCreate(
+    final poll = PollUpdate(
+      id: widget.pollId,
       title: _titleController.text,
       description: _descriptionController.text,
       categoryId: _selectedCategoryId!,
-      categoryName: _categoryController.text,
+      newCategoryName: _categoryController.text,
       createdDate: _startDate?.toIso8601String(),
       expiryDate: _endDate?.toIso8601String(),
       isActive: _isActive,
       questions:
           _questions
               .map(
-                (q) => QuestionCreate(
+                (q) => QuestionUpdate(
                   text: q.text,
                   type: q.type,
                   orderIndex: q.orderIndex,
@@ -127,7 +207,7 @@ class _PollCreateScreenState extends State<PollCreateScreen> {
                   options:
                       q.options
                           .map(
-                            (o) => OptionCreate(
+                            (o) => OptionUpdate(
                               text: o.text,
                               orderIndex: o.orderIndex,
                             ),
@@ -139,22 +219,19 @@ class _PollCreateScreenState extends State<PollCreateScreen> {
     );
 
     try {
-      await services.createPoll(poll);
+      await services.updatePoll(poll);
 
       showDialog(
         context: context,
         builder:
             (_) => AlertDialog(
               title: const Text('Başarılı'),
-              content: const Text('Anket başarıyla oluşturuldu.'),
+              content: const Text('Anket başarıyla güncellendi.'),
               actions: [
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => CategoryScreen()),
-                    );
+                    Navigator.pop(context); // Return to previous screen
                   },
                   child: const Text('Tamam'),
                 ),
@@ -181,12 +258,15 @@ class _PollCreateScreenState extends State<PollCreateScreen> {
 
   Future<void> _pickDate({required bool isStart}) async {
     final now = DateTime.now();
+    final initialDate = isStart ? _startDate ?? now : _endDate ?? now;
+
     final picked = await showDatePicker(
       context: context,
-      initialDate: now,
+      initialDate: initialDate,
       firstDate: now.subtract(const Duration(days: 365)),
       lastDate: now.add(const Duration(days: 365 * 5)),
     );
+
     if (picked != null) {
       setState(() {
         if (isStart) {
@@ -200,8 +280,34 @@ class _PollCreateScreenState extends State<PollCreateScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Anket Güncelle')),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Anket Güncelle')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _loadPollData,
+                child: const Text('Tekrar Dene'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Anket Oluştur')),
+      appBar: AppBar(title: const Text('Anket Güncelle')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -270,26 +376,55 @@ class _PollCreateScreenState extends State<PollCreateScreen> {
                 title: const Text('Aktif mi?'),
               ),
               const SizedBox(height: 20),
-              const Text(
-                'Sorular',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Sorular',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  ElevatedButton(
+                    onPressed: _addQuestion,
+                    child: const Text('Soru Ekle'),
+                  ),
+                ],
               ),
               const SizedBox(height: 10),
-              ..._questions.map(
-                (q) => q.build(context, onChanged: () => setState(() {})),
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: _addQuestion,
-                child: const Text('Soru Ekle'),
-              ),
+              if (_questions.isEmpty)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text('Henüz soru eklenmemiş'),
+                  ),
+                )
+              else
+                ..._questions.map(
+                  (q) => q.build(
+                    context,
+                    onChanged: () => setState(() {}),
+                    onDelete:
+                        () => setState(() {
+                          _questions.remove(q);
+                          // Update order indices
+                          for (var i = 0; i < _questions.length; i++) {
+                            _questions[i].orderIndex = i;
+                          }
+                        }),
+                  ),
+                ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed:
-                    _questions.isNotEmpty && _areQuestionsValid()
-                        ? _submitPoll
-                        : null,
-                child: const Text('Anketi Oluştur'),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _submitPoll,
+                  child: const Padding(
+                    padding: EdgeInsets.all(12.0),
+                    child: Text(
+                      'Anketi Güncelle',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -305,11 +440,15 @@ class Question {
   bool isRequired = true;
   int maxSelections = 0;
   final List<Option> options = [];
-  final int orderIndex;
+  int orderIndex;
 
   Question({required this.orderIndex});
 
-  Widget build(BuildContext context, {required VoidCallback onChanged}) {
+  Widget build(
+    BuildContext context, {
+    required VoidCallback onChanged,
+    VoidCallback? onDelete,
+  }) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: Padding(
@@ -317,12 +456,26 @@ class Question {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextField(
-              onChanged: (v) {
-                text = v;
-                onChanged();
-              },
-              decoration: const InputDecoration(labelText: 'Soru Metni'),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: TextEditingController(
+                      text: text,
+                    )..selection = TextSelection.collapsed(offset: text.length),
+                    onChanged: (v) {
+                      text = v;
+                      onChanged();
+                    },
+                    decoration: const InputDecoration(labelText: 'Soru Metni'),
+                  ),
+                ),
+                if (onDelete != null)
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: onDelete,
+                  ),
+              ],
             ),
             const SizedBox(height: 8),
             DropdownButton<int>(
@@ -352,8 +505,14 @@ class Question {
             ),
             if (type == 4) ...[
               TextField(
+                controller: TextEditingController(
+                  text: maxSelections.toString(),
+                ),
                 keyboardType: TextInputType.number,
-                onChanged: (v) => maxSelections = int.tryParse(v) ?? 0,
+                onChanged: (v) {
+                  maxSelections = int.tryParse(v) ?? 0;
+                  onChanged();
+                },
                 decoration: const InputDecoration(
                   labelText: 'Maksimum Seçim Sayısı',
                 ),
@@ -361,18 +520,45 @@ class Question {
             ],
             if (type == 0 || type == 3 || type == 4) ...[
               const SizedBox(height: 8),
-              const Text(
-                'Seçenekler:',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Seçenekler:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      options.add(Option(orderIndex: options.length));
+                      onChanged();
+                    },
+                    child: const Text('Seçenek Ekle'),
+                  ),
+                ],
               ),
-              ...options.map((o) => o.build(onChanged)).toList(),
-              TextButton(
-                onPressed: () {
-                  options.add(Option(orderIndex: options.length));
-                  onChanged();
-                },
-                child: const Text('Seçenek Ekle'),
-              ),
+              ...options
+                  .map(
+                    (o) => o.build(
+                      onChanged: onChanged,
+                      onDelete: () {
+                        options.remove(o);
+                        // Update order indices
+                        for (var i = 0; i < options.length; i++) {
+                          options[i].orderIndex = i;
+                        }
+                        onChanged();
+                      },
+                    ),
+                  )
+                  .toList(),
+              if (options.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    'Henüz seçenek eklenmemiş',
+                    style: TextStyle(fontStyle: FontStyle.italic),
+                  ),
+                ),
             ],
           ],
         ),
@@ -383,19 +569,32 @@ class Question {
 
 class Option {
   String text = '';
-  final int orderIndex;
+  int orderIndex;
 
   Option({required this.orderIndex});
 
-  Widget build(VoidCallback onChanged) {
+  Widget build({required VoidCallback onChanged, VoidCallback? onDelete}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
-      child: TextField(
-        onChanged: (v) {
-          text = v;
-          onChanged();
-        },
-        decoration: const InputDecoration(labelText: 'Seçenek Metni'),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: TextEditingController(text: text)
+                ..selection = TextSelection.collapsed(offset: text.length),
+              onChanged: (v) {
+                text = v;
+                onChanged();
+              },
+              decoration: const InputDecoration(labelText: 'Seçenek Metni'),
+            ),
+          ),
+          if (onDelete != null)
+            IconButton(
+              icon: const Icon(Icons.delete_outline, size: 20),
+              onPressed: onDelete,
+            ),
+        ],
       ),
     );
   }

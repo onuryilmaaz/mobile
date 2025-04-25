@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:mobile/features/home/screens/home_screen.dart';
 import 'package:provider/provider.dart';
@@ -109,6 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ? const LoadingIndicator()
                         : ElevatedButton(
                           onPressed: _login,
+                          // ignore: sort_child_properties_last
                           child: const Text('Giriş Yap'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.teal, // Arka plan rengi

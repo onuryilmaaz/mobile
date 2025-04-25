@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -47,13 +48,13 @@ class CategoryService {
         options: await getHeaders(),
       );
       if (response.statusCode == 200) {
-        print('Anket başarıyla oluşturuldu.');
+        log('Anket başarıyla oluşturuldu.');
       } else {
-        print('Beklenmeyen hata: ${response.statusCode}');
-        print('Detay: ${response.data}');
+        log('Beklenmeyen hata: ${response.statusCode}');
+        log('Detay: ${response.data}');
       }
     } catch (e) {
-      print('POST işlemi sırasında hata oluştu: $e');
+      log('POST işlemi sırasında hata oluştu: $e');
     }
   }
 
@@ -62,13 +63,13 @@ class CategoryService {
     try {
       final response = await dio.delete(res, options: await getHeaders());
       if (response.statusCode == 200) {
-        print('Kategori başarıyla silindi.');
+        log('Kategori başarıyla silindi.');
       } else {
-        print('Silme hatası: ${response.statusCode}');
-        print('Detay: ${response.data}');
+        log('Silme hatası: ${response.statusCode}');
+        log('Detay: ${response.data}');
       }
     } catch (e) {
-      print('DELETE işlemi sırasında hata oluştu: $e');
+      log('DELETE işlemi sırasında hata oluştu: $e');
     }
   }
 
@@ -81,13 +82,13 @@ class CategoryService {
         options: await getHeaders(),
       );
       if (response.statusCode == 200) {
-        print('Kategori başarıyla güncellendi.');
+        log('Kategori başarıyla güncellendi.');
       } else {
-        print('Güncelleme hatası: ${response.statusCode}');
-        print('Detay: ${response.data}');
+        log('Güncelleme hatası: ${response.statusCode}');
+        log('Detay: ${response.data}');
       }
     } catch (e) {
-      print('PUT işlemi sırasında hata oluştu: $e');
+      log('PUT işlemi sırasında hata oluştu: $e');
     }
   }
 }

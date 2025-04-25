@@ -1,4 +1,4 @@
-class PollDetail {
+class PollsDetail {
   int? id;
   String? title;
   String? description;
@@ -11,7 +11,7 @@ class PollDetail {
   String? newCategoryName;
   List<Question>? questions;
 
-  PollDetail({
+  PollsDetail({
     this.id,
     this.title,
     this.description,
@@ -25,8 +25,8 @@ class PollDetail {
     this.questions,
   });
 
-  factory PollDetail.fromJson(Map<String, dynamic> json) {
-    return PollDetail(
+  factory PollsDetail.fromJson(Map<String, dynamic> json) {
+    return PollsDetail(
       id: json['id'] as int?,
       title: json['title'] as String?,
       description: json['description'] as String?,

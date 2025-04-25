@@ -1,0 +1,136 @@
+{
+    "id": 1002,
+    "title": "Müşteri Memnuniyeti Anketi",
+    "description": "Bu anket, hizmet kalitemizi geliştirmek için müşteri geri bildirimlerini toplamak amacıyla hazırlanmıştır. Lütfen birkaç dakikanızı ayırarak soruları yanıtlayın.",
+    "createdDate": "2025-03-18T21:00:00",
+    "expiryDate": "2025-04-29T21:00:00",
+    "isActive": true,
+    "questions": [
+        {
+            "id": 1065,
+            "text": "Ürün veya hizmetimizi nasıl değerlendirirsiniz? ",
+            "type": 0,
+            "orderIndex": 0,
+            "isRequired": true,
+            "maxSelections": null,
+            "options": [
+                {
+                    "id": 118,
+                    "text": "Mükemmel",
+                    "orderIndex": 0
+                },
+                {
+                    "id": 119,
+                    "text": "İyi",
+                    "orderIndex": 1
+                },
+                {
+                    "id": 120,
+                    "text": "Orta",
+                    "orderIndex": 2
+                },
+                {
+                    "id": 121,
+                    "text": "Kötü",
+                    "orderIndex": 3
+                },
+                {
+                    "id": 122,
+                    "text": "Çok Kötü",
+                    "orderIndex": 4
+                }
+            ]
+        },
+        {
+            "id": 1066,
+            "text": "Hizmetimizle ilgili düşüncelerinizi bizimle paylaşın.",
+            "type": 1,
+            "orderIndex": 1,
+            "isRequired": true,
+            "maxSelections": null,
+            "options": []
+        },
+        {
+            "id": 1067,
+            "text": "Hizmetimizi tekrar kullanır mısınız?",
+            "type": 2,
+            "orderIndex": 2,
+            "isRequired": true,
+            "maxSelections": null,
+            "options": [
+                {
+                    "id": 123,
+                    "text": "Evet",
+                    "orderIndex": 0
+                },
+                {
+                    "id": 124,
+                    "text": "Hayır",
+                    "orderIndex": 1
+                }
+            ]
+        },
+        {
+            "id": 1068,
+            "text": "Aşağıdaki özelliklerden hangilerini daha önemli buluyorsunuz?",
+            "type": 3,
+            "orderIndex": 3,
+            "isRequired": true,
+            "maxSelections": null,
+            "options": [
+                {
+                    "id": 125,
+                    "text": "Uygun fiyat",
+                    "orderIndex": 0
+                },
+                {
+                    "id": 126,
+                    "text": "Ürün/hizmet kalitesi",
+                    "orderIndex": 1
+                },
+                {
+                    "id": 127,
+                    "text": "Müşteri desteği",
+                    "orderIndex": 2
+                },
+                {
+                    "id": 128,
+                    "text": "Hızlı teslimat",
+                    "orderIndex": 3
+                }
+            ]
+        },
+        {
+            "id": 1069,
+            "text": "Aşağıdaki kriterleri sizin için en önemli olandan en az önemli olana sıralayın:",
+            "type": 4,
+            "orderIndex": 4,
+            "isRequired": true,
+            "maxSelections": 4,
+            "options": [
+                {
+                    "id": 129,
+                    "text": "Fiyat",
+                    "orderIndex": 0
+                },
+                {
+                    "id": 130,
+                    "text": "Kalite",
+                    "orderIndex": 1
+                },
+                {
+                    "id": 131,
+                    "text": "Güvenilirlik",
+                    "orderIndex": 2
+                },
+                {
+                    "id": 132,
+                    "text": "Kullanıcı deneyimi",
+                    "orderIndex": 3
+                }
+            ]
+        }
+    ],
+    "categoryId": 1017,
+    "newCategoryName": "Müşteri Deneyimi"
+}

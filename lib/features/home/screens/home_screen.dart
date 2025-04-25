@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:mobile/features/auth/screens/login_screen.dart';
 import 'package:mobile/features/auth/screens/register_screen.dart';
@@ -14,6 +16,7 @@ class HomeScreen extends StatelessWidget {
     final authProvider = context.watch<AuthProvider>();
     final user = authProvider.userDetail;
 
+    // ignore: no_leading_underscores_for_local_identifiers
     void _setScreen(String identifier) async {}
 
     return Scaffold(
