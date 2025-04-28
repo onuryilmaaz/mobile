@@ -152,9 +152,46 @@ class Services {
     }
   }
 
-  Future<void> submitPollResponse(int pollId, List<AnswerDto> answers) async {
-    final res = "$url/submit/$pollId";
+  // Future<void> submitPollResponse(int pollId, List<AnswerDto> answers) async {
+  //   final res = "$url/submit/$pollId";
 
+  //   final payload = {
+  //     "answers": answers.map((answer) => answer.toJson()).toList(),
+  //   };
+
+  //   try {
+  //     final response = await dio.post(
+  //       res,
+  //       data: payload,
+  //       options: await getHeaders(),
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       log('Anket yanıtı başarıyla gönderildi.');
+  //       log("${payload}");
+  //     } else {
+  //       log('Beklenmeyen hata: ${response.statusCode}');
+  //       log('Detay: ${response.data}');
+  //     }
+  //   } catch (e) {
+  //     log('POST işlemi sırasında hata oluştu: $e');
+  //   }
+  // }
+
+  Future<bool> checkParticipationStatus(int pollId) async {
+    final res = "$url/check/$pollId"; // Katılım durumunu kontrol eden endpoint
+
+    try {
+      final response = await dio.get(res);
+      return response.data['hasSubmitted'] == true;
+    } catch (e) {
+      log('Katılım durumu kontrolü sırasında hata oluştu: $e');
+      return false;
+    }
+  }
+
+  Future<bool> submitPollResponse(int pollId, List<AnswerDto> answers) async {
+    final res = "$url/submit/$pollId";
     final payload = {
       "answers": answers.map((answer) => answer.toJson()).toList(),
     };
@@ -168,13 +205,17 @@ class Services {
 
       if (response.statusCode == 200) {
         log('Anket yanıtı başarıyla gönderildi.');
-        log("${payload}");
+        return true; // Başarıyla gönderildi
+      } else if (response.statusCode == 400 || response.statusCode == 409) {
+        log('Kullanıcı zaten ankete katılmış.');
+        return false; // Zaten katılmış
       } else {
         log('Beklenmeyen hata: ${response.statusCode}');
-        log('Detay: ${response.data}');
+        return false; // Hata durumu
       }
     } catch (e) {
       log('POST işlemi sırasında hata oluştu: $e');
+      return false; // Hata durumu
     }
   }
 }

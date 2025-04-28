@@ -3,17 +3,47 @@ import 'package:http/http.dart' as http;
 import 'package:mobile/core/constants/app_constants.dart';
 import 'package:mobile/core/services/storage_service.dart';
 import 'package:mobile/features/user/models/user_detail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class UserService {
   final String _baseUrl = AppConstants.baseUrl;
   final StorageService _storageService = StorageService();
 
+  // Future<Map<String, String>> _getHeaders() async {
+  //   final token = await _storageService.getToken();
+  //   return {
+  //     'Content-Type': 'application/json; charset=UTF-8',
+  //     'Authorization': 'Bearer $token',
+  //   };
+  // }
+
   Future<Map<String, String>> _getHeaders() async {
     final token = await _storageService.getToken();
-    return {
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    };
+    final headers = {'Content-Type': 'application/json; charset=UTF-8'};
+
+    if (token != null && token.isNotEmpty) {
+      // Kullanıcı login olmuşsa
+      headers['Authorization'] = 'Bearer $token';
+    } else {
+      // Kullanıcı login değilse
+      final sessionId = await _getSessionId();
+      headers['SessionId'] = sessionId;
+    }
+
+    return headers;
+  }
+
+  Future<String> _getSessionId() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? sessionId = prefs.getString('SessionId');
+
+    if (sessionId == null) {
+      sessionId = Uuid().v4();
+      await prefs.setString('SessionId', sessionId);
+    }
+
+    return sessionId;
   }
 
   Future<UserDetail?> getUserDetail() async {

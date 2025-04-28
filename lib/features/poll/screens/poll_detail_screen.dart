@@ -16,11 +16,44 @@ class PollDetailScreen extends StatefulWidget {
 class _PollDetailScreenState extends State<PollDetailScreen> {
   final service = Services();
   final AnswerController _answerController = AnswerController();
+  String participationStatus = '';
 
   @override
   void initState() {
     super.initState();
+    // service.checkParticipationStatus(widget.pollId);
+    service.checkParticipationStatus(widget.pollId).then((hasSubmitted) {
+      if (hasSubmitted) {
+        setState(() {
+          participationStatus = 'Ankete daha önce katıldınız';
+        });
+      } else {
+        setState(() {
+          participationStatus = 'Anketi şimdi yanıtlayabilirsiniz';
+        });
+      }
+    });
     service.getActivePollById(widget.pollId);
+  }
+
+  void _showDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Sonuç'),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Tamam'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -62,11 +95,18 @@ class _PollDetailScreenState extends State<PollDetailScreen> {
                           // AnswerController'dan cevapları al
                           final answers = _answerController.getAnswers();
 
-                          // Servise gönder
-                          await service.submitPollResponse(
+                          // Servise gönder ve sonucu bekle
+                          bool success = await service.submitPollResponse(
                             widget.pollId,
                             answers,
                           );
+
+                          // Başarılı ise popup göster, değilse farklı bir popup göster
+                          if (success) {
+                            _showDialog('Başarıyla ankete katıldınız!');
+                          } else {
+                            _showDialog('Bu ankete zaten katıldınız.');
+                          }
                         },
                         child: const Text('Gönder'),
                       ),
