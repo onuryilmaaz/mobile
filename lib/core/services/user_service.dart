@@ -10,14 +10,6 @@ class UserService {
   final String _baseUrl = AppConstants.baseUrl;
   final StorageService _storageService = StorageService();
 
-  // Future<Map<String, String>> _getHeaders() async {
-  //   final token = await _storageService.getToken();
-  //   return {
-  //     'Content-Type': 'application/json; charset=UTF-8',
-  //     'Authorization': 'Bearer $token',
-  //   };
-  // }
-
   Future<Map<String, String>> _getHeaders() async {
     final token = await _storageService.getToken();
     final headers = {'Content-Type': 'application/json; charset=UTF-8'};

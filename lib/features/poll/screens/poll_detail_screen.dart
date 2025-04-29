@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/features/poll/controller/answer_controller.dart';
 import 'package:mobile/features/poll/model/poll_model.dart';
+import 'package:mobile/features/poll/screens/poll_screen.dart';
 import 'package:mobile/features/poll/services/services.dart';
 
 class PollDetailScreen extends StatefulWidget {
@@ -48,6 +49,10 @@ class _PollDetailScreenState extends State<PollDetailScreen> {
               child: const Text('Tamam'),
               onPressed: () {
                 Navigator.of(context).pop();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PollScreen()),
+                );
               },
             ),
           ],

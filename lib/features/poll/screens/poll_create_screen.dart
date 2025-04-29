@@ -3,9 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/features/category/model/category_model.dart';
-import 'package:mobile/features/category/screens/category_screen.dart';
 import 'package:mobile/features/category/services/category_service.dart';
 import 'package:mobile/features/poll/model/poll_create.dart';
+import 'package:mobile/features/poll/screens/poll_screen.dart';
 import 'package:mobile/features/poll/services/services.dart';
 
 class PollCreateScreen extends StatefulWidget {
@@ -153,7 +153,7 @@ class _PollCreateScreenState extends State<PollCreateScreen> {
                     Navigator.of(context).pop();
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => CategoryScreen()),
+                      MaterialPageRoute(builder: (context) => PollScreen()),
                     );
                   },
                   child: const Text('Tamam'),
@@ -170,7 +170,14 @@ class _PollCreateScreenState extends State<PollCreateScreen> {
               content: Text('Bir hata oluştu: $e'),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed:
+                      () => {
+                        Navigator.of(context).pop(),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => PollScreen()),
+                        ),
+                      },
                   child: const Text('Kapat'),
                 ),
               ],

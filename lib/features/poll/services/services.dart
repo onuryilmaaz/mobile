@@ -10,6 +10,7 @@ import 'package:mobile/features/poll/model/poll_response.dart';
 import 'package:mobile/features/poll/model/poll_update.dart';
 import 'package:mobile/features/poll/model/polls_response.dart';
 import 'package:mobile/features/poll/model/poll_detail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Services {
   final dio = Dio();
@@ -96,6 +97,25 @@ class Services {
     return pollDetail;
   }
 
+  Future<bool> isLoggedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString("token");
+    return token != null && token.isNotEmpty;
+  }
+
+  Future<List<int>> getParticipatedPollIds() async {
+    final response = await dio.get(
+      "$url/participated",
+      options: await getHeaders(),
+    );
+    if (response.statusCode == 200) {
+      final data = response.data as List;
+      return data.map<int>((item) => item['id'] as int).toList();
+    } else {
+      throw Exception("Katıldığı anketler yüklenemedi");
+    }
+  }
+
   Future<void> togglePollStatus(int pollId) async {
     try {
       await dio.delete("$url/toogle/$pollId", options: await getHeaders());
@@ -152,37 +172,11 @@ class Services {
     }
   }
 
-  // Future<void> submitPollResponse(int pollId, List<AnswerDto> answers) async {
-  //   final res = "$url/submit/$pollId";
-
-  //   final payload = {
-  //     "answers": answers.map((answer) => answer.toJson()).toList(),
-  //   };
-
-  //   try {
-  //     final response = await dio.post(
-  //       res,
-  //       data: payload,
-  //       options: await getHeaders(),
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       log('Anket yanıtı başarıyla gönderildi.');
-  //       log("${payload}");
-  //     } else {
-  //       log('Beklenmeyen hata: ${response.statusCode}');
-  //       log('Detay: ${response.data}');
-  //     }
-  //   } catch (e) {
-  //     log('POST işlemi sırasında hata oluştu: $e');
-  //   }
-  // }
-
   Future<bool> checkParticipationStatus(int pollId) async {
     final res = "$url/check/$pollId"; // Katılım durumunu kontrol eden endpoint
 
     try {
-      final response = await dio.get(res);
+      final response = await dio.get(res, options: await getHeaders());
       return response.data['hasSubmitted'] == true;
     } catch (e) {
       log('Katılım durumu kontrolü sırasında hata oluştu: $e');

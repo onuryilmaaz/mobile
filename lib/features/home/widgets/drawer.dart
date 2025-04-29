@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
+import 'package:mobile/features/auth/screens/login_screen.dart';
 import 'package:mobile/features/category/screens/category_screen.dart';
 import 'package:mobile/features/home/screens/home_screen.dart';
 import 'package:mobile/features/poll/screens/poll_create_screen.dart';
@@ -238,6 +239,11 @@ class MainDrawer extends StatelessWidget {
                     );
                   },
                 ),
+              ],
+            ),
+          Column(
+            children: [
+              if (authProvider.isAuthenticated)
                 ListTile(
                   leading: const Icon(
                     Icons.logout_outlined,
@@ -255,8 +261,30 @@ class MainDrawer extends StatelessWidget {
                     context.read<AuthProvider>().logout();
                   },
                 ),
-              ],
-            ),
+              if (!authProvider.isAuthenticated)
+                ListTile(
+                  leading: const Icon(
+                    Icons.login,
+                    size: 26,
+                    color: Colors.black,
+                  ),
+                  title: Text(
+                    "Giriş Yap",
+                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                      color: Colors.black,
+                      fontSize: 24,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginScreen()),
+                    );
+                  },
+                ),
+            ],
+          ),
         ],
       ),
     );
