@@ -14,7 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Services {
   final dio = Dio();
-  final url = "http://10.0.2.2:5231/api/Poll";
+  final url = "http://10.210.210.85:8080/api/Poll";
   final StorageService _storageService = StorageService();
 
   Future<Options> getHeaders() async {

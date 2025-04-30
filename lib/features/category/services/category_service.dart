@@ -7,7 +7,7 @@ import 'package:mobile/features/category/model/category_model.dart';
 
 class CategoryService {
   final dio = Dio();
-  final url = 'http://10.0.2.2:5231/api/Category';
+  final url = 'http://10.210.210.85:8080/api/Category';
   final StorageService _storageService = StorageService();
 
   Future<Options> getHeaders() async {

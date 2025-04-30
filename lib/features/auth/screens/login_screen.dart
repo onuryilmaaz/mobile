@@ -72,10 +72,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    Text(
+                      "Giriş Yap",
+                      style: TextStyle(color: Colors.teal, fontSize: 28),
+                    ),
+                    const SizedBox(height: 16),
                     TextFormField(
                       controller: _emailController,
                       decoration: const InputDecoration(labelText: 'Email'),
                       keyboardType: TextInputType.emailAddress,
+                      maxLength: 256,
                       validator: (value) {
                         if (value == null ||
                             value.isEmpty ||
@@ -90,6 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _passwordController,
                       decoration: const InputDecoration(labelText: 'Şifre'),
                       obscureText: true,
+                      maxLength: 256,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Şifrenizi girin';

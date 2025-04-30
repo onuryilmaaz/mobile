@@ -22,17 +22,14 @@ class _PollDetailScreenState extends State<PollDetailScreen> {
   @override
   void initState() {
     super.initState();
-    // service.checkParticipationStatus(widget.pollId);
+    //service.checkParticipationStatus(widget.pollId);
     service.checkParticipationStatus(widget.pollId).then((hasSubmitted) {
-      if (hasSubmitted) {
-        setState(() {
-          participationStatus = 'Ankete daha önce katıldınız';
-        });
-      } else {
-        setState(() {
-          participationStatus = 'Anketi şimdi yanıtlayabilirsiniz';
-        });
-      }
+      setState(() {
+        participationStatus =
+            hasSubmitted
+                ? 'Ankete daha önce katıldınız'
+                : 'Anketi şimdi yanıtlayabilirsiniz';
+      });
     });
     service.getActivePollById(widget.pollId);
   }
@@ -97,17 +94,32 @@ class _PollDetailScreenState extends State<PollDetailScreen> {
                       const SizedBox(height: 24),
                       ElevatedButton(
                         onPressed: () async {
-                          // AnswerController'dan cevapları al
+                          // ❌ Zaten katılmışsa engelle
+                          if (participationStatus ==
+                              'Ankete daha önce katıldınız') {
+                            _showDialog('Bu ankete zaten katıldınız.');
+                            return;
+                          }
+
                           final answers = _answerController.getAnswers();
 
-                          // Servise gönder ve sonucu bekle
+                          // 📋 Cevapları kontrol et (boş değilse gönder)
+                          if (answers.isEmpty) {
+                            _showDialog('Lütfen tüm soruları yanıtlayınız.');
+                            return;
+                          }
+
+                          // ✅ Gönder
                           bool success = await service.submitPollResponse(
                             widget.pollId,
                             answers,
                           );
 
-                          // Başarılı ise popup göster, değilse farklı bir popup göster
                           if (success) {
+                            setState(() {
+                              participationStatus =
+                                  'Ankete daha önce katıldınız'; // UI'yı güncelle
+                            });
                             _showDialog('Başarıyla ankete katıldınız!');
                           } else {
                             _showDialog('Bu ankete zaten katıldınız.');
@@ -115,6 +127,26 @@ class _PollDetailScreenState extends State<PollDetailScreen> {
                         },
                         child: const Text('Gönder'),
                       ),
+                      // ElevatedButton(
+                      //   onPressed: () async {
+                      //     // AnswerController'dan cevapları al
+                      //     final answers = _answerController.getAnswers();
+
+                      //     // Servise gönder ve sonucu bekle
+                      //     bool success = await service.submitPollResponse(
+                      //       widget.pollId,
+                      //       answers,
+                      //     );
+
+                      //     // Başarılı ise popup göster, değilse farklı bir popup göster
+                      //     if (success) {
+                      //       _showDialog('Başarıyla ankete katıldınız!');
+                      //     } else {
+                      //       _showDialog('Bu ankete zaten katıldınız.');
+                      //     }
+                      //   },
+                      //   child: const Text('Gönder'),
+                      // ),
                     ],
                   ),
                 );

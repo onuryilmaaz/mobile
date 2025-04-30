@@ -31,7 +31,12 @@ class _PollScreenState extends State<PollScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Anketler")),
+      appBar: AppBar(
+        title: const Text("Anketler"),
+        actions: [
+          IconButton(onPressed: _loadPollData, icon: const Icon(Icons.refresh)),
+        ],
+      ),
       backgroundColor: Colors.teal,
       drawer: MainDrawer(onSelectScreen: _setScreen),
       body: FutureBuilder<Map<String, dynamic>>(

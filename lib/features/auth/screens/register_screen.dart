@@ -73,9 +73,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Text(
+                    "Kayıt Ol",
+                    style: TextStyle(color: Colors.teal, fontSize: 28),
+                  ),
+                  const SizedBox(height: 16),
                   TextFormField(
                     controller: _fullNameController,
                     decoration: const InputDecoration(labelText: 'Tam Adınız'),
+                    maxLength: 256,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return 'Lütfen tam adınızı girin';
@@ -88,6 +94,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _emailController,
                     decoration: const InputDecoration(labelText: 'Email'),
                     keyboardType: TextInputType.emailAddress,
+                    maxLength: 256,
                     validator: (value) {
                       if (value == null ||
                           value.isEmpty ||
@@ -102,6 +109,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _passwordController,
                     decoration: const InputDecoration(labelText: 'Şifre'),
                     obscureText: true,
+                    maxLength: 256,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Şifrenizi girin';
@@ -119,6 +127,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       labelText: 'Şifre Tekrar',
                     ),
                     obscureText: true,
+                    maxLength: 256,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Şifrenizi tekrar girin';
